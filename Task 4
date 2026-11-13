@@ -1,0 +1,47 @@
+from datetime import datetime
+
+
+def log_error(message):
+    with open("errors.log", "a", encoding="utf-8") as err:
+        err.write(
+            f"{datetime.now():%Y-%m-%d %H:%M:%S} {message}\n"
+        )
+
+
+def save_returns(books, day_file):
+    with open("returns.log", "a", encoding="utf-8") as log:
+        for book in books:
+            if book.strip():
+                log.write(f"{day_file}: {book}\n")
+
+
+def process(day_file):
+    try:
+        with open(day_file, encoding="utf-8") as f:
+            books = f.read().split("\n")
+
+        save_returns(books, day_file)
+
+    except FileNotFoundError:
+        log_error(f"{day_file} is missing")
+        print("missing:", day_file)
+
+    except Exception as error:
+        log_error(f"{day_file} failed: {error!r}")
+        raise
+
+
+# Start the test with a clean log
+with open("returns.log", "w", encoding="utf-8"):
+    pass
+
+for day in ("day1.txt", "day2.txt", "day3.txt", "day9.txt"):
+    process(day)
+
+print("--- returns.log ---")
+with open("returns.log", encoding="utf-8") as f:
+    print(f.read(), end="")
+
+print("--- errors.log ---")
+with open("errors.log", encoding="utf-8") as f:
+    print(f.read(), end="")
