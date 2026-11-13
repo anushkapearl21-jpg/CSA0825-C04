@@ -1,0 +1,18 @@
+class RegistrationError(Exception):
+    pass
+
+
+class InvalidRecord(RegistrationError):
+    pass
+
+
+class InvalidEmail(RegistrationError):
+    pass
+
+
+class DuplicateRegistration(RegistrationError):
+    pass
+
+
+class DamagedLine(RegistrationError):
+    pass
