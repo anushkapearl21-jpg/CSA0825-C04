@@ -1,0 +1,69 @@
+def read_records(filename):
+    records = {}
+
+    with open(filename, encoding="utf-8") as f:
+        for line in f:
+            parts = line.strip().split(",")
+
+            if len(parts) == 3:
+                reg, date, status = parts
+                records.setdefault(reg, []).append((date, status))
+
+    return records
+
+
+def percentage(rows):
+    total = len(rows)
+    present = sum(1 for date, status in rows if status == "P")
+
+    return present * 100 / total if total else 0
+
+
+def compute(records):
+    return {
+        reg: percentage(rows)
+        for reg, rows in records.items()
+    }
+
+
+def write_report(result):
+    with open("attendance_report.txt", "w",
+              encoding="utf-8") as f:
+        for reg, pct in sorted(result.items()):
+            f.write(f"{reg}: {pct:.2f}%\n")
+
+
+def absent_streaks(records, days=3):
+    flagged = {}
+
+    for reg, rows in records.items():
+        run = best = 0
+
+        for _, status in sorted(rows):
+            run = run + 1 if status == "A" else 0
+            best = max(best, run)
+
+        if best >= days:
+            flagged[reg] = best
+
+    return flagged
+
+
+def main():
+    records = read_records("attendance.txt")
+    result = compute(records)
+    write_report(result)
+
+    flagged = absent_streaks(records)
+
+    with open("absent_3_days.txt", "w",
+              encoding="utf-8") as f:
+        for reg, days in flagged.items():
+            f.write(f"{reg} absent {days} days in a row\n")
+
+    print(result)
+    print(flagged)
+
+
+if __name__ == "__main__":
+    main()
